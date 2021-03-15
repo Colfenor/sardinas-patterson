@@ -1,14 +1,11 @@
 use std::env;
 use std::path::Path;
 use std::fs::File;
-use std::io::{self, BufRead};
+use std::io::prelude::Read;
 
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where P: AsRef<Path>, {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
-}
+/* sardinas patterson algorithm for testing unique decipherability */
 
+// reference: IEEE TRANSACTIONS ON INFORMATION THEORY, VOL. IT-28, NO. 4, JULY 1982
 
 fn main() {
     // pass filename to cmd line args
@@ -21,15 +18,23 @@ fn main() {
     }
 
     let path = Path::new(&args[1]);
-    if let Ok(lines) = read_lines(path) {
-        for line in lines {
-            if let Ok(ip) = line {
-                println!("{}", ip);
-                
-            }
-        }
+    let display = path.display();
+
+    let mut file = match File::open(&path) {
+        Err(why) => panic!("couldn't open {}: {}", display, why),
+        Ok(file) => file,
+    };
+
+    let mut parsed_content = String::new();
+    match file.read_to_string(&mut parsed_content) {
+        Err(why) => panic!("couldn't read {}: {}", display, why),
+        Ok(_) => print!("{} contains:{} \n", display, parsed_content),
     }
 
-
+    let input_codes: Vec<&str> = parsed_content.split(",").collect();
     
+    for x in input_codes {
+        println!("{}\n", x)
+    }
+
 }
