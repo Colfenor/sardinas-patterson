@@ -6,6 +6,8 @@ use std::io::prelude::Read;
 /* sardinas patterson algorithm for testing unique decipherability */
 // reference: IEEE TRANSACTIONS ON INFORMATION THEORY, VOL. IT-28, NO. 4, JULY 1982
 
+// 01,10,1001
+
 fn read_in_file(path: &Path) -> Vec<String> {
     
     let display = path.display();
@@ -36,8 +38,17 @@ fn main() {
     let path = Path::new(&args[1]);
     
     let test = read_in_file(path);
+    //let output: Vec<&str>;
 
-    for x in test {
-        println!("{}\n", x)
+    for x in &test {
+        for y in &test {
+            if x.chars().count() > y.chars().count() && x.find(y) == Some(0) {
+                //
+            }
+        }
     }
+
+    /*for t in output {
+        println!("{}\n", t);
+    }*/
 }
