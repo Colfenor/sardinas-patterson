@@ -61,6 +61,30 @@ fn sardinas_patterson_algorithm(codeword_list: &Vec<String>) -> bool {
         }
     }
 
+    // E2
+    let mut i = 0;
+    while i < tails.len() {
+        for j in codeword_list {
+            if &tails[i] == j {
+                return false;
+            }
+            if tails[i].chars().count() > j.chars().count() && tails[i].find(j) == Some(0) {
+                
+                let sigma = tails[i][j.chars().count()..].to_owned();
+                
+                let mut tail_concat = tails[i].to_owned();
+                let mut word_concat = j.to_owned();
+    
+                word_concat.push_str(&sigma);
+                tail_concat.push_str(&sigma);
+    
+                if &tail_concat == j || word_concat == tails[i] {
+                    tails.insert(i, sigma);
+                }
+            }
+        }
+        i += 1;
+    }
     true
 }
 
@@ -76,5 +100,11 @@ fn main() {
 
     let path = Path::new(&args[1]);
 
-    sardinas_patterson_algorithm(&read_in_file(path));
+    let result = sardinas_patterson_algorithm(&read_in_file(path));
+
+    if result {
+        println!("The input alphabet is uniquely decodable.");
+    } else {
+        println!("The input alphabet is *not* uniquely decodable.")
+    }
 }
