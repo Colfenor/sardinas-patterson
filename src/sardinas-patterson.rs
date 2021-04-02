@@ -1,16 +1,13 @@
-use std::{env, vec};
-use std::path::Path;
 use std::fs::File;
 use std::io::prelude::Read;
+use std::path::Path;
 use std::process::exit;
+use std::{env, vec};
 
 /* sardinas patterson algorithm for testing unique decipherability */
 // reference: IEEE TRANSACTIONS ON INFORMATION THEORY, VOL. IT-28, NO. 4, JULY 1982
 
-//01,10,1001
-
 fn read_in_file(path: &Path) -> Vec<String> {
-    
     let display = path.display();
     let mut file = match File::open(&path) {
         Err(why) => panic!("could not open {}: {}", display, why),
@@ -39,7 +36,6 @@ fn duplicates_inside(vector: &Vec<String>) -> bool {
 }
 
 fn sardinas_patterson_algorithm(codeword_list: &Vec<String>) -> bool {
-
     let mut tails = vec![];
 
     //E1.1 check for duplicates in our list of codewords
@@ -68,19 +64,22 @@ fn sardinas_patterson_algorithm(codeword_list: &Vec<String>) -> bool {
             if &tails[i] == j {
                 return false;
             }
+            let mut sigma = String::new();
+
             if tails[i].chars().count() > j.chars().count() && tails[i].find(j) == Some(0) {
-                
-                let sigma = tails[i][j.chars().count()..].to_owned();
-                
-                let mut tail_concat = tails[i].to_owned();
-                let mut word_concat = j.to_owned();
-    
-                word_concat.push_str(&sigma);
-                tail_concat.push_str(&sigma);
-    
-                if &tail_concat == j || word_concat == tails[i] {
-                    tails.insert(i, sigma);
-                }
+                sigma = tails[i][j.chars().count()..].to_owned();
+            } else if tails[i].chars().count() < j.chars().count() && j.find(&tails[i]) == Some(0) {
+                sigma = j[tails[i].chars().count()..].to_owned();
+            }
+
+            let mut tail_concat = tails[i].to_owned();
+            let mut word_concat = j.to_owned();
+
+            word_concat.push_str(&sigma);
+            tail_concat.push_str(&sigma);
+
+            if &tail_concat == j || word_concat == tails[i] {
+                tails.push(sigma);
             }
         }
         i += 1;
