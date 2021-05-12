@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::{fs::File, io};
 use std::io::prelude::Read;
 use std::path::Path;
 use std::process::exit;
@@ -7,20 +7,13 @@ use std::{env, vec};
 /* sardinas patterson algorithm for testing unique decipherability */
 // reference: IEEE TRANSACTIONS ON INFORMATION THEORY, VOL. IT-28, NO. 4, JULY 1982
 
-fn read_in_file(path: &Path) -> Vec<String> {
-    let display = path.display();
-    let mut file = match File::open(&path) {
-        Err(why) => panic!("could not open {}: {}", display, why),
-        Ok(file) => file,
-    };
+fn read_in_file(path: &Path) -> Result<Vec<String>, io::Error> {
+    let mut file = File::open(&path)?;
 
     let mut parsed_content = String::new();
-    match file.read_to_string(&mut parsed_content) {
-        Err(why) => panic!("could not read {}: {}", display, why),
-        Ok(_) => print!("{} contains: {} \n", display, parsed_content),
-    }
+    file.read_to_string(&mut parsed_content)?;
 
-    parsed_content.split(",").map(str::to_string).collect()
+    Ok(parsed_content.split(",").map(str::to_string).collect())
 }
 
 fn duplicates_inside(vector: &Vec<String>) -> bool {
@@ -99,7 +92,12 @@ fn main() {
 
     let path = Path::new(&args[1]);
 
-    let result = sardinas_patterson_algorithm(&read_in_file(path));
+    let alphabet = match read_in_file(path) {
+        Err(why) => panic!("File io error: {}", why),
+        Ok(file) => file,
+    };
+
+    let result = sardinas_patterson_algorithm(&alphabet);
 
     if result {
         println!("The input alphabet is uniquely decodable.");
